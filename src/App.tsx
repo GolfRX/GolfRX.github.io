@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 interface TrainingBlock {
   name: string;
@@ -14,29 +14,12 @@ export default function App() {
   const [currentBlockIndex, setCurrentBlockIndex] = useState<number | null>(null);
   const [secondsLeft, setSecondsLeft] = useState(300);
   const startTimeRef = useRef<number | null>(null);
-  const [timer, setTimer] = useState<number | null>(null);
   const [popupVisible, setPopupVisible] = useState(false);
   const [confirmStart, setConfirmStart] = useState(false);
   const [showPrep, setShowPrep] = useState(true);
 
   useEffect(() => {
-    startTimeRef.current = Date.now();
-  
-    const interval = setInterval(() => {
-      if (startTimeRef.current !== null) {
-        const elapsed = Math.floor((Date.now() - startTimeRef.current) / 1000);
-        const remaining = 300 - elapsed;
-        setSecondsLeft(remaining > 0 ? remaining : 0);
-      }
-    }, 1000);
-  
-    return () => clearInterval(interval);
-  }, []);
-
-  useEffect(() => {
-    if (secondsLeft === 0 && currentBlockIndex !== null && timer) {
-      clearInterval(timer);
-      setTimer(null);
+    if (secondsLeft === 0 && currentBlockIndex !== null) {
       setPopupVisible(true);
       setTimeout(() => {
         setPopupVisible(false);
@@ -50,18 +33,20 @@ export default function App() {
 
   useEffect(() => {
     if (currentBlockIndex !== null && plan[currentBlockIndex] && !showPrep) {
-      startBlockTimer(plan[currentBlockIndex].time);
+      const durationInSec = plan[currentBlockIndex].time * 60;
+      startTimeRef.current = Date.now();
+
+      const interval = setInterval(() => {
+        if (startTimeRef.current !== null) {
+          const elapsed = Math.floor((Date.now() - startTimeRef.current) / 1000);
+          const remaining = durationInSec - elapsed;
+          setSecondsLeft(remaining > 0 ? remaining : 0);
+        }
+      }, 1000);
+
+      return () => clearInterval(interval);
     }
   }, [currentBlockIndex, showPrep]);
-
-  const startBlockTimer = (minutes: number) => {
-    setSecondsLeft(minutes * 60);
-    if (timer) clearInterval(timer);
-    const newTimer = setInterval(() => {
-      setSecondsLeft((prev) => (prev > 0 ? prev - 1 : 0));
-    }, 1000);
-    setTimer(newTimer);
-  };
 
   const formatTime = (sec: number): string => {
     const m = Math.floor(sec / 60);
