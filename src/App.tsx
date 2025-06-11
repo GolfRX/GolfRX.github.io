@@ -12,11 +12,26 @@ export default function App() {
   const [duration, setDuration] = useState("");
   const [plan, setPlan] = useState<TrainingBlock[]>([]);
   const [currentBlockIndex, setCurrentBlockIndex] = useState<number | null>(null);
-  const [secondsLeft, setSecondsLeft] = useState(0);
+  const [secondsLeft, setSecondsLeft] = useState(300);
+  const startTimeRef = useRef<number | null>(null);
   const [timer, setTimer] = useState<number | null>(null);
   const [popupVisible, setPopupVisible] = useState(false);
   const [confirmStart, setConfirmStart] = useState(false);
   const [showPrep, setShowPrep] = useState(true);
+
+  useEffect(() => {
+    startTimeRef.current = Date.now();
+  
+    const interval = setInterval(() => {
+      if (startTimeRef.current !== null) {
+        const elapsed = Math.floor((Date.now() - startTimeRef.current) / 1000);
+        const remaining = 300 - elapsed;
+        setSecondsLeft(remaining > 0 ? remaining : 0);
+      }
+    }, 1000);
+  
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     if (secondsLeft === 0 && currentBlockIndex !== null && timer) {
