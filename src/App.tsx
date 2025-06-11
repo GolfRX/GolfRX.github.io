@@ -10,6 +10,7 @@ interface TrainingBlock {
 
 export default function App() {
   const [duration, setDuration] = useState("");
+  const [atHome, setAtHome] = useState(false);
   const [plan, setPlan] = useState<TrainingBlock[]>([]);
   const [currentBlockIndex, setCurrentBlockIndex] = useState<number | null>(null);
   const [secondsLeft, setSecondsLeft] = useState(300);
@@ -67,7 +68,11 @@ export default function App() {
       return;
     }
 
-    const blocks: TrainingBlock[] = [
+    const blocks: TrainingBlock[] = atHome ? [
+      { name: "Kraft (Home)", tip: "3x: 20 Kniebeugen, 15 Liegestütze (ggf. auf Knien), 30 Sek Plank. Ziel: saubere Ausführung, kurze Pausen.", time: 0.33, emoji: "💪", prepTime: 0.5 },
+      { name: "Koordination", tip: "Stell dich auf ein Bein, schließe die Augen und balanciere 30 Sekunden. Dann: 10x auf Bein wechseln, dazu Ball prellen o.ä.", time: 0.33, emoji: "🦶", prepTime: 0.5 },
+      { name: "Mentaltraining (Home)", tip: "Lege dich auf den Rücken, entspanne dich. 5 Minuten Visualisieren von erfolgreichen Golfschlägen. Fokus: Atmung + Details.", time: 0.34, emoji: "🧘", prepTime: 0.5 }
+    ] : [
       { name: "Putten", tip: "Lege drei Tees in 3 Meter Entfernung auf eine gerade Linie. Putte 5 Bälle mit Fokus auf Tempo. Danach: Zieltraining mit 3 Bällen auf ein Tee, max. 2 Putts.", time: 0.25, emoji: "🏌️‍♂️", prepTime: 1 },
       { name: "Chipping", tip: "Lege ein Tuch in 1m Abstand auf das Grün. Chippe aus Fairway, Semi und Rough mit PW, SW und 9er Eisen. Ziel: 10 Chips in 1m Kreis.", time: 0.2, emoji: "🟢", prepTime: 1 },
       { name: "Bunker", tip: "Platziere 5 Bälle in unterschiedlichen Lagen (flach, tief, nass). Ziel: alle auf dem Grün landen, Fokus auf Konstanz. Nutze den gleichen Bunkerbereich für Wiederholbarkeit.", time: 0.15, emoji: "🏖️", prepTime: 1 },
@@ -107,8 +112,18 @@ export default function App() {
           value={duration}
           onChange={(e) => setDuration(e.target.value)}
           placeholder="Wie viele Minuten?"
-          className="w-full p-3 border-2 border-gray-300 rounded-xl mb-4 text-center"
+          className="w-full p-3 border-2 border-gray-300 rounded-xl mb-2 text-center"
         />
+        <div className="flex items-center mb-4">
+          <input
+            id="homeTraining"
+            type="checkbox"
+            checked={atHome}
+            onChange={() => setAtHome(!atHome)}
+            className="mr-2"
+          />
+          <label htmlFor="homeTraining" className="text-gray-700">Ich trainiere zu Hause</label>
+        </div>
         <button
           onClick={generatePlan}
           className="w-full bg-green-700 hover:bg-green-600 text-white py-3 rounded-xl transition mb-4"
